@@ -6,19 +6,57 @@ local rectMT = {}
 
 -- end
 -------------- rectMT
+function rectMT:width()
+	return self.maxX - self.minX
+end
+
+function rectMT:height()
+	return self.maxY - self.minY
+end
+
+function rectMT:centerX()
+	return (self.minX + self.maxX) * 0.5
+end
+
+function rectMT:centerY()
+	return (self.minY + self.maxY) * 0.5
+end
 
 function rectMT:offsetBy(dx, dy) 
-
+	return Rect:new {
+		minX = self.minX + dx,
+		minY = self.minY + dy,
+		width = self:width(),
+		height = self:height()
+	}
 end
 
 function rectMT:insetBy(dx, dy)
-
+	if dx > self:width() * 0.5 then
+		dx = self:width() * 0.5
+	end
+	if dy > self:height() * 0.5 then
+		dy = self:height() * 0.5
+	end
+	return Rect:new {
+		minX = self.minX + dx,
+		maxX = self.maxX - dx,
+		minY = self.minY + dy,
+		maxY = self.maxY - dy
+	}
 end
 
 -------- metamethods
-function rectMT.__tostring(rect)
-	return "RECT (" .. rect.minX .. ", " .. rect.minY 
-		.. ") - (" .. rect.maxX .. ", " .. rect.maxY .. ")"
+rectMT.__index = rectMT
+
+function rectMT:__tostring()
+	return "RECT (" .. self.minX .. ", " .. self.minY 
+		.. ") - (" .. self.maxX .. ", " .. self.maxY .. ")"
+end
+
+function rectMT:__eq(other)
+	return self.minX == other.minX and self.maxX == other.maxX 
+		and self.minY == other.minY and self.maxY == other.maxY
 end
 
 
@@ -39,16 +77,26 @@ function Rect:new(params)
 	return rect
 end
 
+function Rect:fromObject(obj) 
+	local cb = obj.contentBounds
+	return Rect:new {
+		minX = cb.xMin,
+		maxX = cb.xMax,
+		minY = cb.yMin,
+		maxY = cb.yMax
+	}
+end
+
 function Rect:zero()
-
+	return self:new { minX = 0, maxX = 0, minY = 0, maxY = 0 }
 end
 
-function Rect:null()
+-- function Rect:null()
 
-end
+-- end
 
-function Rect:inf()
+-- function Rect:inf()
 
-end
+-- end
 
 return Rect
